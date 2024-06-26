@@ -40,16 +40,16 @@ class Lead extends Model
     protected function casts(): array
     {
         return [
-            'date_sale' => 'datetime:Y-m-d',
-            'date_sale_term' => 'datetime:Y-m-d',
-            'date_sent_documents' => 'datetime:Y-m-d',
-            'date_sent_documents_actual' => 'datetime:Y-m-d',
-            'date_inspection' => 'datetime:Y-m-d',
-            'date_inspection_actual' => 'datetime:Y-m-d',
-            'date_remeasurement' => 'datetime:Y-m-d',
-            'date_remeasurement_actual' => 'datetime:Y-m-d',
-            'date_start' => 'datetime:Y-m-d',
-            'date_start_actual' => 'datetime:Y-m-d',
+            'date_sale' => 'datetime',
+            'date_sale_term' => 'datetime',
+            'date_sent_documents' => 'datetime',
+            'date_sent_documents_actual' => 'datetime',
+            'date_inspection' => 'datetime',
+            'date_inspection_actual' => 'datetime',
+            'date_remeasurement' => 'datetime',
+            'date_remeasurement_actual' => 'datetime',
+            'date_start' => 'datetime',
+            'date_start_actual' => 'datetime',
             'inspection_types' => "array",
         ];
     }
