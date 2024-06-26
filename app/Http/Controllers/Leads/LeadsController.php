@@ -2,15 +2,37 @@
 
 namespace App\Http\Controllers\Leads;
 
+use App\Enums\Leads\InspetionTypes;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EmployeResource;
 use App\Http\Resources\Leads\LeadResource;
 use App\Models\Employee;
 use App\Models\Lead;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rules\Enum;
 
 class LeadsController extends Controller
 {
+    private function rules()
+    {
+        return [
+            'number' => ["required", "numeric"],
+            'employee_id' => ["nullable", "exists:employees,id"],
+            'date_sale' => ["nullable", "date"],
+            'date_sale_term' => ["nullable", "date"],
+            'date_sent_documents' => ["nullable", "date"],
+            'date_sent_documents_actual' => ["nullable", "date"],
+            'date_inspection' => ["nullable", "date"],
+            'date_inspection_actual' => ["nullable", "date"],
+            'date_remeasurement' => ["nullable", "date"],
+            'date_remeasurement_actual' => ["nullable", "date"],
+            'date_start' => ["nullable", "date"],
+            'date_start_actual' => ["nullable", "date"],
+            'inspection_types' => ["nullable", "array"],
+            'inspection_types.*' => [new Enum(InspetionTypes::class)],
+        ];
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -34,7 +56,8 @@ class LeadsController extends Controller
             ->get();
 
         return response()->json([
-            'employees' => EmployeResource::collection($employees)
+            'employees' => EmployeResource::collection($employees),
+            'inspections' => InspetionTypes::options(),
         ]);
     }
 
@@ -43,15 +66,7 @@ class LeadsController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'number' => ["required", "numeric"],
-            'employee_id' => ["nullable", "exists:employees,id"],
-            'date_sale' => ["nullable", "date"],
-            'date_sent_documents' => ["nullable", "date"],
-            'date_inspection' => ["nullable", "date"],
-            'date_remeasurement' => ["nullable", "date"],
-            'date_start' => ["nullable", "date"],
-        ]);
+        $data = $request->validate($this->rules());
 
         $lead = new Lead;
         $lead->fill($data);
@@ -76,7 +91,7 @@ class LeadsController extends Controller
     {
         $employees = Employee::where('user_id', auth()->id())
             ->orderBy('lastname')
-            ->limit($lead->employee ? 19 : 20)
+            ->limit(20)
             ->get();
 
         if ($lead->employee) {
@@ -85,7 +100,8 @@ class LeadsController extends Controller
 
         return response()->json([
             'lead' => new LeadResource($lead),
-            'employees' => EmployeResource::collection($employees)
+            'employees' => EmployeResource::collection($employees->unique('id')->values()),
+            'inspections' => InspetionTypes::options(),
         ]);
     }
 
@@ -94,15 +110,7 @@ class LeadsController extends Controller
      */
     public function update(Request $request, Lead $lead)
     {
-        $data = $request->validate([
-            'number' => ["required", "numeric"],
-            'employee_id' => ["nullable", "exists:employees,id"],
-            'date_sale' => ["nullable", "date"],
-            'date_sent_documents' => ["nullable", "date"],
-            'date_inspection' => ["nullable", "date"],
-            'date_remeasurement' => ["nullable", "date"],
-            'date_start' => ["nullable", "date"],
-        ]);
+        $data = $request->validate($this->rules());
 
         $lead->fill($data);
         $lead->save();

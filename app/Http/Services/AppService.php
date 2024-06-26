@@ -17,8 +17,8 @@ class AppService
         return [
             [
                 'route' => "/leads",
-                'name' => "Заявки",
-                'icon' => "th list",
+                'name' => "Замеры",
+                'icon' => "clipboard list",
             ],
             // [
             //     'route' => "/settings",
