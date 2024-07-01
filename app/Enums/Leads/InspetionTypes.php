@@ -15,9 +15,9 @@ enum InspetionTypes: int
     public function name()
     {
         return match ($this) {
-            static::formalization => "Оформление",
-            static::technical => "Техническая",
-            static::price => "Цена",
+            static::formalization => "Документы правильные?",
+            static::technical => "Данные по замеру ок?",
+            static::price => "Фото объекта ок?",
         };
     }
 }
