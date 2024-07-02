@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Resources\EmployeResource;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -57,5 +58,26 @@ class Lead extends Model
     public function employee()
     {
         return $this->belongsTo(Employee::class);
+    }
+
+    public function remeasurements()
+    {
+        return $this->hasMany(LeadsRemeasurement::class);
+    }
+
+    public function getRemeasurementsResourceAttribute()
+    {
+        $items = $this->remeasurements
+            ->map(fn ($item) => [
+                'id' => $item->id,
+                'date' => $item->date,
+                'date_actual' => $item->date_actual,
+                'comment' => $item->comment,
+                'employee_id' => $item->employee_id,
+                'employee' => $item->employee ? new EmployeResource($item->employee) : null,
+            ])
+            ->all();
+
+        return !empty($items) ? $items : [[]];
     }
 }

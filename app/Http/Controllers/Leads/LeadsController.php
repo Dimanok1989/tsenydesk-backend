@@ -8,6 +8,7 @@ use App\Http\Resources\EmployeResource;
 use App\Http\Resources\Leads\LeadResource;
 use App\Models\Employee;
 use App\Models\Lead;
+use App\Models\LeadsRemeasurement;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Enum;
 
@@ -29,7 +30,7 @@ class LeadsController extends Controller
             'date_start' => ["nullable", "date"],
             'date_start_actual' => ["nullable", "date"],
             'inspection_types' => ["nullable", "array"],
-            'inspection_types.*' => [new Enum(InspetionTypes::class)],
+            // 'inspection_types.*' => [new Enum(InspetionTypes::class)],
         ];
     }
 
@@ -73,7 +74,9 @@ class LeadsController extends Controller
         $lead->user_id = $request->user()->id ?? null;
         $lead->save();
 
-        return new LeadResource($lead);
+        $this->fillRemeasurements($lead, $request->remeasurements ?: []);
+
+        return new LeadResource($lead->refresh());
     }
 
     /**
@@ -115,6 +118,8 @@ class LeadsController extends Controller
         $lead->fill($data);
         $lead->save();
 
+        $this->fillRemeasurements($lead, $request->remeasurements ?: []);
+
         return new LeadResource($lead->refresh());
     }
 
@@ -124,5 +129,15 @@ class LeadsController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    private function fillRemeasurements(Lead $lead, array $remeasurements)
+    {
+        foreach ($remeasurements as $item) {
+            $model = LeadsRemeasurement::findOrNew($item['id'] ?? null);
+            $model->lead_id = $lead->id;
+            $model->fill($item);
+            $model->save();
+        }
     }
 }

@@ -36,11 +36,21 @@ class LeadResource extends JsonResource
             'updated_at' => $this->updated_at,
             'inspection_types' => $this->inspection_types ?: [],
             'inspections' => collect($this->inspection_types ?: [])
-                ->map(fn ($item) => InspetionTypes::tryFrom($item)?->name() ?? null)
+                ->filter(fn ($item) => is_bool($item))
+                ->map(
+                    fn ($item, $key) => trim((InspetionTypes::tryFrom($key)?->name() ?? "")
+                        . " "
+                        . match ($item) {
+                            true => "Да",
+                            false => "Нет",
+                            default => "",
+                        })
+                )
                 ->filter()
                 ->sort()
                 ->values()
                 ->all(),
+            'remeasurements' => $this->remeasurements_resource,
         ];
     }
 }
