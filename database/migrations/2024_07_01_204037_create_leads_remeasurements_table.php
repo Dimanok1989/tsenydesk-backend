@@ -28,7 +28,7 @@ return new class extends Migration
             ->orWhere('date_remeasurement_actual', '!=', null)
             ->get()
             ->each(function ($item) {
-                DB::table('leads_remeasurements')->isert([
+                DB::table('leads_remeasurements')->insert([
                     'lead_id' => $item->id,
                     'date' => $item->date_remeasurement,
                     'date_actual' => $item->date_remeasurement_actual,
