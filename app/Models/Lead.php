@@ -67,7 +67,7 @@ class Lead extends Model
 
     public function getRemeasurementsResourceAttribute()
     {
-        $items = $this->remeasurements
+        return $this->remeasurements
             ->map(fn ($item) => [
                 'id' => $item->id,
                 'date' => $item->date,
@@ -77,7 +77,5 @@ class Lead extends Model
                 'employee' => $item->employee ? new EmployeResource($item->employee) : null,
             ])
             ->all();
-
-        return !empty($items) ? $items : [[]];
     }
 }
