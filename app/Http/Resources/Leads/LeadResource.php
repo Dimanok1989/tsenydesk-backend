@@ -23,8 +23,10 @@ class LeadResource extends JsonResource
             'employee' => $this->employee ? new EmployeResource($this->employee) : null,
             'date_inspection' => $this->date_inspection,
             'date_inspection_actual' => $this->date_inspection_actual,
-            'date_remeasurement' => $this->date_remeasurement,
-            'date_remeasurement_actual' => $this->date_remeasurement_actual,
+            'dismantling_date' => $this->dismantling_date,
+            'dismantling_employee_id' => $this->dismantling_employee_id,
+            'dismantling_employee' => $this->dismantling_employee ? new EmployeResource($this->dismantling_employee) : null,
+            'dismantling_comment' => $this->dismantling_comment,
             'date_sale' => $this->date_sale,
             'date_sale_term' => $this->date_sale_term,
             'days_sale_term' => $this->date_sale_term > now() ? ceil(now()->diffInDays($this->date_sale_term)) : null,
@@ -37,15 +39,19 @@ class LeadResource extends JsonResource
             'inspection_types' => $this->inspection_types ?: [],
             'inspections' => collect($this->inspection_types ?: [])
                 ->filter(fn ($item) => is_bool($item))
-                ->map(
-                    fn ($item, $key) => trim((InspetionTypes::tryFrom($key)?->name() ?? "")
-                        . " "
-                        . match ($item) {
-                            true => "Да",
-                            false => "Нет",
-                            default => "",
-                        })
-                )
+                ->map(fn ($item, $key) => [
+                    'title' => InspetionTypes::tryFrom($key)?->name() ?? null,
+                    'value' => match ($item) {
+                        true => "Да",
+                        false => "Нет",
+                        default => null,
+                    },
+                    'color' => match ($item) {
+                        true => "green",
+                        false => "orange",
+                        default => "gray",
+                    },
+                ])
                 ->filter()
                 ->sort()
                 ->values()

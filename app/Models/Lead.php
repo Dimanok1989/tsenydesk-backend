@@ -26,8 +26,9 @@ class Lead extends Model
         'date_sent_documents_actual',
         'date_inspection',
         'date_inspection_actual',
-        'date_remeasurement',
-        'date_remeasurement_actual',
+        'dismantling_date',
+        'dismantling_employee_id',
+        'dismantling_comment',
         'date_start',
         'date_start_actual',
         'inspection_types',
@@ -47,8 +48,7 @@ class Lead extends Model
             'date_sent_documents_actual' => 'datetime',
             'date_inspection' => 'datetime',
             'date_inspection_actual' => 'datetime',
-            'date_remeasurement' => 'datetime',
-            'date_remeasurement_actual' => 'datetime',
+            'dismantling_date' => 'datetime',
             'date_start' => 'datetime',
             'date_start_actual' => 'datetime',
             'inspection_types' => "array",
@@ -58,6 +58,11 @@ class Lead extends Model
     public function employee()
     {
         return $this->belongsTo(Employee::class);
+    }
+
+    public function dismantlingEmployee()
+    {
+        return $this->belongsTo(Employee::class, "dismantling_employee_id");
     }
 
     public function remeasurements()

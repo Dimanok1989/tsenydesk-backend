@@ -8,9 +8,7 @@ use App\Http\Resources\EmployeResource;
 use App\Http\Resources\Leads\LeadResource;
 use App\Models\Employee;
 use App\Models\Lead;
-use App\Models\LeadsRemeasurement;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rules\Enum;
 
 class LeadsController extends Controller
 {
@@ -30,7 +28,9 @@ class LeadsController extends Controller
             'date_start' => ["nullable", "date"],
             'date_start_actual' => ["nullable", "date"],
             'inspection_types' => ["nullable", "array"],
-            // 'inspection_types.*' => [new Enum(InspetionTypes::class)],
+            'dismantling_date' => ["nullable", "date"],
+            'dismantling_employee_id' => ["nullable", "exists:employees,id"],
+            'dismantling_comment' => ["nullable", "string", "max:500"],
         ];
     }
 
@@ -133,11 +133,20 @@ class LeadsController extends Controller
 
     private function fillRemeasurements(Lead $lead, array $remeasurements)
     {
+        $current = $lead->remeasurements()->get()->pluck('id')->all();
+        $updated = [];
+
         foreach ($remeasurements as $item) {
-            $model = LeadsRemeasurement::findOrNew($item['id'] ?? null);
-            $model->lead_id = $lead->id;
+
+            $model = $lead->remeasurements()->findOrNew($item['id'] ?? null);
             $model->fill($item);
             $model->save();
+
+            $updated[] = $model->id;
+        }
+
+        if (!empty($toDelete = array_diff($current, $updated))) {
+            $lead->remeasurements()->whereIn('id', $toDelete)->delete();
         }
     }
 }
