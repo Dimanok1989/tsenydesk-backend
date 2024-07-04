@@ -70,6 +70,11 @@ class Lead extends Model
         return $this->hasMany(LeadsRemeasurement::class);
     }
 
+    public function files()
+    {
+        return $this->hasMany(LeadsFile::class);
+    }
+
     public function getRemeasurementsResourceAttribute()
     {
         return $this->remeasurements

@@ -8,7 +8,9 @@ use App\Http\Resources\EmployeResource;
 use App\Http\Resources\Leads\LeadResource;
 use App\Models\Employee;
 use App\Models\Lead;
+use App\Models\LeadsFile;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class LeadsController extends Controller
 {
@@ -148,5 +150,32 @@ class LeadsController extends Controller
         if (!empty($toDelete = array_diff($current, $updated))) {
             $lead->remeasurements()->whereIn('id', $toDelete)->delete();
         }
+    }
+
+    public function upload(Request $request, Lead $lead)
+    {
+        foreach ($request->file('files') as $file) {
+
+            $path = $file->store(date("Y/m/d"));
+
+            $lead->files()->create([
+                'name' => $file->getClientOriginalName(),
+                'filename' => pathinfo($path, PATHINFO_FILENAME),
+                'path' => pathinfo($path, PATHINFO_DIRNAME),
+                'extension' => $file->extension(),
+                'mime_type' => mime_content_type(Storage::path($path)),
+                'group' => $request->type,
+                'size' => $file->getSize(),
+            ]);
+        }
+
+        return new LeadResource($lead->refresh());
+    }
+
+    public function file(string $file)
+    {
+        return response()->file(
+            Storage::path($file)
+        );
     }
 }

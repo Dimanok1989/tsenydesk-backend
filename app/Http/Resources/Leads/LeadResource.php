@@ -57,6 +57,14 @@ class LeadResource extends JsonResource
                 ->values()
                 ->all(),
             'remeasurements' => $this->remeasurements_resource,
+            'files' => $this->files
+                ->map(fn ($file) => [
+                    'url' => $file->url,
+                    'name' => $file->name,
+                    'is_image' => $file->is_image,
+                    'group' => $file->group,
+                ])
+                ->groupBy('group'),
         ];
     }
 }
